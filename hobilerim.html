@@ -65,6 +65,29 @@
     .filter-btn.f-work { background: var(--work); color: white; border-color: var(--work); }
     .filter-btn.f-life { background: var(--life); color: white; border-color: var(--life); }
 
+    /* Toplu Taşıma ve Yolculuk Butonları */
+    .filter-btn.f-transit { background: #6b21a8; color: white; border-color: #6b21a8; }
+    .filter-btn.f-transit:hover { background: #581c87; border-color: #581c87; }
+    
+    .filter-btn.f-journey { background: var(--accent); color: white; border-color: var(--accent); margin-left: auto; }
+    .filter-btn.f-journey:hover { background: var(--gold); border-color: var(--gold); }
+    .journey-line { animation: flowLine 20s linear infinite; }
+
+    /* Toplu Taşıma Tooltip (Bilgi Kutucuğu) Stilleri */
+    .transit-tooltip {
+      background: rgba(26,26,46,0.92) !important;
+      color: var(--gold) !important;
+      border: 1px solid var(--accent) !important;
+      font-family: 'DM Sans', sans-serif !important;
+      font-size: 0.75rem !important;
+      border-radius: 4px !important;
+      padding: 0.35rem 0.7rem !important;
+      font-weight: 500 !important;
+      letter-spacing: 0.04em !important;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.15) !important;
+    }
+    .leaflet-tooltip.transit-tooltip::before { display: none !important; }
+
     .map-wrapper { border-radius: 6px; overflow: hidden; border: 1px solid rgba(26,26,46,0.1); box-shadow: 0 8px 40px rgba(0,0,0,0.06); }
     #network-map { height: 520px; width: 100%; }
 
@@ -88,6 +111,7 @@
     .popup-period { margin-top: 0.3rem; font-size: 0.78rem; color: #999; }
 
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes flowLine { to { stroke-dashoffset: -1000; } }
 
     @media (max-width: 768px) {
       .hobbies-grid { grid-template-columns: 1fr; }
@@ -95,6 +119,7 @@
       nav { padding: 1rem 1.5rem; }
       .nav-links { gap: 1.2rem; }
       .page-header { padding: 7rem 1.5rem 3rem; }
+      .filter-btn.f-journey { margin-left: 0; width: 100%; text-align: center; }
     }
   </style>
 </head>
@@ -116,7 +141,6 @@
     </p>
   </header>
 
-  <!-- HOBBIES -->
   <section class="hobbies-section">
     <p class="section-label">Kişisel İlgi Alanları</p>
     <div class="hobbies-grid">
@@ -147,7 +171,6 @@
     </div>
   </section>
 
-  <!-- PERSONAL NETWORK MAP -->
   <section class="map-section">
     <div class="map-section-header">
       <h2 class="map-section-title">Personal <em>Network Map</em></h2>
@@ -162,6 +185,8 @@
       <button class="filter-btn" id="btn-edu"  onclick="filterLayer('edu')">🎓 Eğitim</button>
       <button class="filter-btn" id="btn-work" onclick="filterLayer('work')">💼 İş &amp; Staj</button>
       <button class="filter-btn" id="btn-life" onclick="filterLayer('life')">🏠 Yaşam</button>
+      <button class="filter-btn f-transit" id="btn-transit" onclick="toggleTransit()">🚇 Ulaşım Süreleri</button>
+      <button class="filter-btn f-journey" id="btn-journey" onclick="playJourney()">🚀 Yolculuğu Başlat</button>
     </div>
 
     <div class="map-wrapper">
@@ -273,7 +298,7 @@
         .addTo(layerGroups[n.cat]);
     });
 
-    // Connection lines
+    // Standart Connection lines
     const lines = [
       L.polyline([[39.8677, 32.7338], [39.9750, 32.7800]], { color: '#1d4ed8', weight: 2, dashArray: '6 5', opacity: 0.35 }),
       L.polyline([[39.91173569670921, 32.75191428280923], [39.9750, 32.7800]], { color: '#15803d', weight: 2, dashArray: '6 5', opacity: 0.35 }),
@@ -283,9 +308,21 @@
     Object.values(layerGroups).forEach(lg => lg.addTo(map));
     lines.forEach(l => l.addTo(map));
 
+    let journeyLayer = L.featureGroup().addTo(map);
+    let transitLayer = L.featureGroup().addTo(map);
+    let isJourneyPlaying = false;
+    let isTransitMode = false;
     const btnClasses = { all: 'f-all', edu: 'f-edu', work: 'f-work', life: 'f-life' };
 
+    // --- FİLTRELEME FONKSİYONU ---
     function filterLayer(type) {
+      if (isTransitMode) {
+        // Eğer Toplu Taşıma modu açıksa önce onu kapat ki çizgiler çakışmasın
+        isTransitMode = false;
+        document.getElementById('btn-transit').innerHTML = "🚇 Ulaşım Süreleri";
+        transitLayer.clearLayers();
+      }
+
       ['all','edu','work','life'].forEach(t => {
         document.getElementById('btn-' + t).className = 'filter-btn';
       });
@@ -300,6 +337,129 @@
         });
         lines.forEach(l => { if (map.hasLayer(l)) map.removeLayer(l); });
       }
+    }
+
+    // --- TOPLU TAŞIMA SÜRELERİ (YENİ EKLENEN KISIM) ---
+    function toggleTransit() {
+      if (isJourneyPlaying) return; // Animasyon oynarken buton devredışı
+
+      const btn = document.getElementById('btn-transit');
+
+      if (isTransitMode) {
+        // Kapatma İşlemi
+        isTransitMode = false;
+        btn.innerHTML = "🚇 Ulaşım Süreleri";
+        transitLayer.clearLayers();
+        filterLayer('all'); // Eski görünümü geri yükle
+      } else {
+        // Açma İşlemi
+        isTransitMode = true;
+        btn.innerHTML = "❌ Ulaşımı Gizle";
+        
+        // Önce tüm haritayı gösterip, klasik ince çizgileri gizle
+        filterLayer('all');
+        lines.forEach(l => { if (map.hasLayer(l)) map.removeLayer(l); });
+
+        // Yenimahalle (Yaşam Alanı) Koordinatları
+        const yasamCoords = [39.9750, 32.7800];
+        
+        // Yaşam alanından diğer yerlere giden toplu taşıma verisi
+        const transitRoutes = [
+          { coords: [39.8677, 32.7338], info: "🚇 Otobüs + Metro + Ring (~1 saat 45 dk)", color: "#e11d48" }, // Hacettepe
+          { coords: [39.911735, 32.751914], info: "🚇 Otobüs+ Metro + Yürüme  (~1 saat 20 dk)", color: "#2563eb" }, // Bakanlık
+          { coords: [39.9085, 32.7531], info: "🚇 Otobüs+ Metro + Yürüme  (~1 saat 20 dk)", color: "#2563eb" }, // İntelli
+          { coords: [39.9689, 32.7968], info: "🚐 Dolmuş / Yürüme (~20 dk)", color: "#16a34a" }, // TKGM
+          { coords: [39.8893, 32.8272], info: "🚌 Otobüs + Metro + Otobüs (~45 dk)", color: "#d97706" } // İndis
+        ];
+
+        // Rotaları çizdir
+        transitRoutes.forEach(route => {
+          const transitLine = L.polyline([yasamCoords, route.coords], {
+            color: route.color,
+            weight: 5,
+            opacity: 0.85,
+            dashArray: '8, 8' // Metro hattı gibi kesikli görünüm
+          });
+          
+          transitLine.bindTooltip(route.info, {
+            permanent: true,
+            direction: 'center',
+            className: 'transit-tooltip'
+          });
+          
+          transitLine.addTo(transitLayer);
+        });
+
+        // Tüm ulaşım hatlarını ekrana sığdıracak şekilde uzaklaş
+        map.flyToBounds(transitLayer.getBounds(), { padding: [50, 50], duration: 1.2 });
+      }
+    }
+
+    // --- KARİYER YOLCULUĞU ANİMASYONU ---
+    const journeyRoute = [
+      { lat: 39.9750, lng: 32.7800 }, // Yaşam (Yenimahalle)
+      { lat: 39.8677, lng: 32.7338 }, // Eğitim (Hacettepe - 2019)
+      { lat: 39.9689, lng: 32.7968 }, // Staj (TKGM - 2021)
+      { lat: 39.8893, lng: 32.8272 }, // Staj (İndis - 2022)
+      { lat: 39.9085, lng: 32.7531 }, // İş (İntelli - 2024)
+      { lat: 39.91173569670921, lng: 32.75191428280923 } // İş (Bakanlık - 2025)
+    ];
+
+    async function playJourney() {
+      if (isJourneyPlaying) return;
+      isJourneyPlaying = true;
+
+      const btn = document.getElementById('btn-journey');
+      btn.innerHTML = "⏳ Yolculuk Sürüyor...";
+      btn.style.opacity = "0.8";
+      btn.style.pointerEvents = "none";
+
+      filterLayer('all');
+      journeyLayer.clearLayers();
+      map.closePopup();
+
+      for (let i = 0; i < journeyRoute.length; i++) {
+        const currentStop = journeyRoute[i];
+        map.flyTo([currentStop.lat, currentStop.lng], 14, { duration: 1.5 });
+        await new Promise(r => setTimeout(r, 1600)); 
+
+        map.eachLayer(layer => {
+          if (layer instanceof L.Marker) {
+            const latlng = layer.getLatLng();
+            if (Math.abs(latlng.lat - currentStop.lat) < 0.001 && Math.abs(latlng.lng - currentStop.lng) < 0.001) {
+              layer.openPopup();
+            }
+          }
+        });
+
+        if (i > 0) {
+          const prevStop = journeyRoute[i - 1];
+          L.polyline([[prevStop.lat, prevStop.lng], [currentStop.lat, currentStop.lng]], {
+            color: '#8b6914',
+            weight: 3,
+            dashArray: '10, 10',
+            className: 'journey-line'
+          }).addTo(journeyLayer);
+        }
+        await new Promise(r => setTimeout(r, 2200)); 
+      }
+
+      if(journeyLayer.getLayers().length > 0){
+          map.flyToBounds(journeyLayer.getBounds(), { padding: [60, 60], duration: 1.5 });
+          await new Promise(r => setTimeout(r, 1600)); 
+      }
+
+      btn.innerHTML = "✅ Yolculuk Tamamlandı";
+      document.querySelectorAll('.journey-line').forEach(line => {
+        line.style.animation = 'none';
+      });
+
+      await new Promise(r => setTimeout(r, 2000)); 
+
+      btn.innerHTML = "🚀 Tekrar Başlat";
+      btn.style.opacity = "1";
+      btn.style.pointerEvents = "auto";
+      isJourneyPlaying = false;
     }
   </script>
 </body>
