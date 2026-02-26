@@ -27,6 +27,14 @@
     .bio-text { font-size: 1.05rem; line-height: 1.9; color: var(--ink); margin-bottom: 1.2rem; }
     .bio-text.muted { color: var(--muted); }
     h3.sub-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400; margin: 2.5rem 0 1rem; }
+    
+    /* YENİ: Proje Kartları Stili */
+    .projects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; margin-top: 1.5rem;}
+    .project-card { background: var(--card-bg); border: 1px solid rgba(26,26,46,0.08); padding: 1.8rem; border-radius: 4px; transition: transform 0.3s, box-shadow 0.3s;}
+    .project-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.05); }
+    .project-card h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; margin-bottom: 0.6rem; color: #1a5276; }
+    .project-card p { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.2rem; line-height: 1.6;}
+
     .timeline-item { display: grid; grid-template-columns: 110px 1fr; gap: 1.5rem; padding: 1.4rem 0; border-bottom: 1px solid rgba(26,26,46,0.06); opacity: 0; transform: translateX(-20px); animation: slideIn 0.5s ease forwards; }
     .timeline-item:nth-child(1) { animation-delay: 0.1s; }
     .timeline-item:nth-child(2) { animation-delay: 0.2s; }
@@ -66,7 +74,7 @@
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
     @keyframes growBar { to { width: var(--target); } }
-    @media (max-width: 768px) { .page-header, .content { grid-template-columns: 1fr; padding-left: 1.5rem; padding-right: 1.5rem; } .page-header { padding-top: 6rem; } nav { padding: 1rem 1.5rem; } .nav-links { gap: 1.2rem; } }
+    @media (max-width: 768px) { .page-header, .content { grid-template-columns: 1fr; padding-left: 1.5rem; padding-right: 1.5rem; } .page-header { padding-top: 6rem; } .projects-grid { grid-template-columns: 1fr; } nav { padding: 1rem 1.5rem; } .nav-links { gap: 1.2rem; } }
   </style>
 </head>
 <body>
@@ -92,8 +100,23 @@
   <div class="content">
     <div class="bio-section">
       <div class="accent-line"></div>
-      <p class="bio-text">LiDAR nokta bulutu analizi, yapay zeka destekli nesne algılama ve uzaktan algılama üzerine yoğunlaşıyorum. ACM SIGSPATIAL 2023'te sunulan makalem, 2013'ten bu yana kabul edilen ilk Türk çalışması olma özelliğini taşımaktadır.</p>
-      <p class="bio-text muted">İntelli Yazılım'da Yazılım Geliştirici olarak YOLOv8 tabanlı nesne algılama projeleri üzerinde çalıştım. TKGM ve İndis Mühendislik'teki stajlarımda GNSS ve fotogrametri alanlarında saha deneyimi kazandım.</p>
+      <p class="bio-text">LiDAR nokta bulutu analizi, yapay zeka destekli nesne algılama ve uzaktan algılama üzerine yoğunlaşıyorum. </p>
+      <p class="bio-text muted">İntelli Yazılım'da Yazılım Geliştirici olarak YOLOv8 tabanlı nesne algılama projeleri üzerinde çalıştım. TKGM ve İndis Mühendislik'teki stajlarımda GNSS ve fotogrametri alanlarında deneyimi kazandım. Şuan ise T.C. Çevre, Şehircilik ve İklim Değişikliği Bakanlığı
+ CBS Genel Müdürlüğünde CBS Uzman Yardımcısı olarak görev yapıyorum.</p>
+
+      <h3 class="sub-title">Öne Çıkan Projeler</h3>
+      <div class="projects-grid">
+        <div class="project-card">
+          <h4>📍 LiDAR Bina Ayak İzi Çıkarımı</h4>
+          <p>Havadan LiDAR (Point Cloud) verilerini kullanarak algoritmik bina tespiti, segmentasyonu ve 3D modelleme (lasbuildseg projesi).</p>
+          <span class="tl-tag pub">Python</span> <span class="tl-tag pub">Point Cloud</span>
+        </div>
+        <div class="project-card">
+          <h4>🤖 YOLOv8 Nesne Tespiti</h4>
+          <p>Uydu ve yüksek çözünürlüklü hava fotoğrafları üzerinden derin öğrenme ile otomatik anomali, araç ve bina tespiti modelleri.</p>
+          <span class="tl-tag pub">Deep Learning</span> <span class="tl-tag pub">YOLOv8</span>
+        </div>
+      </div>
 
       <div class="pub-card">
         <div class="pub-label">📄 Konferans Makalesi</div>

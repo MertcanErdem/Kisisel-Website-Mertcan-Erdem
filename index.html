@@ -36,8 +36,11 @@
     .hero-tag { font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.8rem; }
     .hero-tag::before { content: ''; width: 2rem; height: 1px; background: var(--accent); }
 
-    .hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(3.5rem, 7vw, 6rem); line-height: 1.05; font-weight: 300; margin-bottom: 1.8rem; }
+    .hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(3.5rem, 7vw, 6rem); line-height: 1.05; font-weight: 300; margin-bottom: 0.5rem; }
     .hero-title em { font-style: italic; color: var(--gold); }
+
+    /* Typewriter Style */
+    #typewriter { font-family: 'DM Sans', sans-serif; font-size: 1.3rem; font-weight: 400; color: var(--ministry); margin-bottom: 1.8rem; height: 32px; display: flex; align-items: center; }
 
     .hero-desc { font-size: 1rem; line-height: 1.7; color: var(--muted); max-width: 420px; margin-bottom: 2rem; }
 
@@ -111,6 +114,7 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes float { 0%, 100% { transform: translate(-50%, -50%) rotate(-2deg) translateY(0); } 50% { transform: translate(-50%, -50%) rotate(-2deg) translateY(-12px); } }
     @keyframes pulse-dot { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.6; } }
+    @keyframes blink { 0%, 100% { border-color: transparent; } 50% { border-color: var(--accent); } }
 
     @media (max-width: 768px) {
       .hero { grid-template-columns: 1fr; min-height: auto; padding-top: 7rem; }
@@ -134,10 +138,12 @@
 
   <section class="hero">
     <div class="hero-text">
-      <div class="hero-tag">Geomatik &amp; Harita  Mühendisliği</div>
+      <div class="hero-tag">Geomatik &amp; Harita Mühendisliği</div>
       <h1 class="hero-title">
         Merhaba, ben<br /><em>Mertcan Erdem</em>
       </h1>
+      <div id="typewriter"></div>
+      
       <p class="hero-desc">
         Hacettepe Üniversitesi Harita Mühendisliği Yüksek Lisans öğrencisi. LiDAR nokta bulutu analizi, yapay zeka ve uzaktan algılama alanlarında araştırma yapıyorum.
       </p>
@@ -219,5 +225,42 @@
     <p>© 2025 Mertcan Erdem — Hacettepe Üniversitesi, Harita Mühendisliği</p>
     <p style="font-size:0.78rem;color:var(--muted)">Web CBS Ödev-1</p>
   </footer>
+
+  <script>
+    const words = ["Geomatik Mühendisi", " YZ Yazılım Geliştiricisi", "CBS Uzman Yardımcısı"];
+    let i = 0, j = 0;
+    let isDeleting = false;
+    
+    function typeWriter() {
+      const currentWord = words[i];
+      const el = document.getElementById("typewriter");
+      
+      if (isDeleting) {
+        el.innerHTML = "👉 " + currentWord.substring(0, j-1) + "<span style='border-right: 2px solid var(--accent); animation: blink 0.7s infinite;'>&nbsp;</span>";
+        j--;
+      } else {
+        el.innerHTML = "👉 " + currentWord.substring(0, j+1) + "<span style='border-right: 2px solid var(--accent); animation: blink 0.7s infinite;'>&nbsp;</span>";
+        j++;
+      }
+      
+      let typeSpeed = isDeleting ? 40 : 80;
+      
+      if (!isDeleting && j === currentWord.length) {
+        typeSpeed = 2500; // Kelime tamamlandığında bekleme süresi
+        isDeleting = true;
+      } else if (isDeleting && j === 0) {
+        isDeleting = false;
+        i = (i + 1) % words.length;
+        typeSpeed = 500; // Silindikten sonra bekleme süresi
+      }
+      
+      setTimeout(typeWriter, typeSpeed);
+    }
+    
+    // Animasyonu başlat
+    document.addEventListener("DOMContentLoaded", function() {
+      setTimeout(typeWriter, 1000);
+    });
+  </script>
 </body>
 </html>

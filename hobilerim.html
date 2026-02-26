@@ -73,7 +73,7 @@
     .filter-btn.f-journey:hover { background: var(--gold); border-color: var(--gold); }
     .journey-line { animation: flowLine 20s linear infinite; }
 
-    /* Toplu Taşıma Tooltip (Bilgi Kutucuğu) Stilleri */
+    /* Toplu Taşıma Tooltip Stilleri */
     .transit-tooltip {
       background: rgba(26,26,46,0.92) !important;
       color: var(--gold) !important;
@@ -211,13 +211,35 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script>
-    const map = L.map('network-map', { center: [39.91, 32.77], zoom: 12 });
+    // --- YENİ EKLENEN: HARİTA KATMANLARI ---
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap', maxZoom: 19
+    });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 19
-    }).addTo(map);
+    const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles © Esri', maxZoom: 19
+    });
 
+    const darkMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap, © CartoDB', maxZoom: 19
+    });
+
+    // Haritayı OSM ile başlat
+    const map = L.map('network-map', { 
+      center: [39.91, 32.77], 
+      zoom: 12,
+      layers: [osm] 
+    });
+
+    // Katman kontrolcüsünü haritaya ekle
+    const baseMaps = {
+      "🗺️ Standart Harita": osm,
+      "🛰️ Uydu Görüntüsü": satellite,
+      "🌙 Karanlık Harita": darkMap
+    };
+    L.control.layers(baseMaps).addTo(map);
+
+    // Zoom ve Koordinat göstergesi
     map.on('zoomend', () => {
       document.getElementById('zoom-display').textContent = 'Zoom: ' + map.getZoom();
     });
@@ -298,7 +320,6 @@
         .addTo(layerGroups[n.cat]);
     });
 
-    // Standart Connection lines
     const lines = [
       L.polyline([[39.8677, 32.7338], [39.9750, 32.7800]], { color: '#1d4ed8', weight: 2, dashArray: '6 5', opacity: 0.35 }),
       L.polyline([[39.91173569670921, 32.75191428280923], [39.9750, 32.7800]], { color: '#15803d', weight: 2, dashArray: '6 5', opacity: 0.35 }),
@@ -314,10 +335,8 @@
     let isTransitMode = false;
     const btnClasses = { all: 'f-all', edu: 'f-edu', work: 'f-work', life: 'f-life' };
 
-    // --- FİLTRELEME FONKSİYONU ---
     function filterLayer(type) {
       if (isTransitMode) {
-        // Eğer Toplu Taşıma modu açıksa önce onu kapat ki çizgiler çakışmasın
         isTransitMode = false;
         document.getElementById('btn-transit').innerHTML = "🚇 Ulaşım Süreleri";
         transitLayer.clearLayers();
@@ -339,35 +358,27 @@
       }
     }
 
-    // --- TOPLU TAŞIMA SÜRELERİ ---
     function toggleTransit() {
-      if (isJourneyPlaying) return; // Animasyon oynarken buton devredışı
+      if (isJourneyPlaying) return; 
 
       const btn = document.getElementById('btn-transit');
 
       if (isTransitMode) {
-        // Kapatma İşlemi
         isTransitMode = false;
         btn.innerHTML = "🚇 Ulaşım Süreleri";
         transitLayer.clearLayers();
-        filterLayer('all'); // Eski görünümü geri yükle
-
-        // Haritayı orijinal konumuna geri döndür (Merkez ve Zoom)
+        filterLayer('all');
         map.flyTo([39.91, 32.77], 12, { duration: 1.2 });
       } else {
-        // Açma İşlemi
-        filterLayer('all'); // Önce tüm harita objelerini yükle, SONRA transit modunu aç
+        filterLayer('all'); 
         
         isTransitMode = true;
         btn.innerHTML = "❌ Ulaşımı Gizle";
         
-        // Klasik ince çizgileri gizle
         lines.forEach(l => { if (map.hasLayer(l)) map.removeLayer(l); });
 
-        // Yenimahalle (Yaşam Alanı) Koordinatları
         const yasamCoords = [39.9750, 32.7800];
         
-        // Yaşam alanından diğer yerlere giden toplu taşıma verisi
         const transitRoutes = [
           { coords: [39.8677, 32.7338], info: "🚇 Otobüs + Metro + Ring (~1 saat 45 dk)", color: "#e11d48" }, 
           { coords: [39.911735, 32.751914], info: "🚇 Otobüs+ Metro + Yürüme  (~1 saat 20 dk)", color: "#2563eb" }, 
@@ -376,13 +387,12 @@
           { coords: [39.8893, 32.8272], info: "🚌 Otobüs + Metro + Otobüs (~45 dk)", color: "#d97706" } 
         ];
 
-        // Rotaları çizdir
         transitRoutes.forEach(route => {
           const transitLine = L.polyline([yasamCoords, route.coords], {
             color: route.color,
             weight: 5,
             opacity: 0.85,
-            dashArray: '8, 8' // Metro hattı gibi kesikli görünüm
+            dashArray: '8, 8' 
           });
           
           transitLine.bindTooltip(route.info, {
@@ -394,19 +404,17 @@
           transitLine.addTo(transitLayer);
         });
 
-        // Tüm ulaşım hatlarını ekrana sığdıracak şekilde uzaklaş
         map.flyToBounds(transitLayer.getBounds(), { padding: [50, 50], duration: 1.2 });
       }
     }
 
-    // --- KARİYER YOLCULUĞU ANİMASYONU ---
     const journeyRoute = [
-      { lat: 39.9750, lng: 32.7800 }, // Yaşam (Yenimahalle)
-      { lat: 39.8677, lng: 32.7338 }, // Eğitim (Hacettepe - 2019)
-      { lat: 39.9689, lng: 32.7968 }, // Staj (TKGM - 2021)
-      { lat: 39.8893, lng: 32.8272 }, // Staj (İndis - 2022)
-      { lat: 39.9085, lng: 32.7531 }, // İş (İntelli - 2024)
-      { lat: 39.91173569670921, lng: 32.75191428280923 } // İş (Bakanlık - 2025)
+      { lat: 39.9750, lng: 32.7800 },
+      { lat: 39.8677, lng: 32.7338 },
+      { lat: 39.9689, lng: 32.7968 },
+      { lat: 39.8893, lng: 32.8272 },
+      { lat: 39.9085, lng: 32.7531 },
+      { lat: 39.91173569670921, lng: 32.75191428280923 }
     ];
 
     async function playJourney() {
