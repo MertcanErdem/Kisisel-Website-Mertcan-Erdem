@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hakkımda — Mertcan Erdem</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink: #1a1a2e; --paper: #f5f0e8; --accent: #8b6914; --gold: #b8860b; --muted: #7a7a8c; --card-bg: #fffdf7; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 3rem; background: rgba(245,240,232,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(26,26,46,0.08); }
+    .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; color: var(--ink); text-decoration: none; }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a { text-decoration: none; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); transition: color 0.3s; position: relative; }
+    .nav-links a.active { color: var(--ink); }
+    .nav-links a::after { content: ''; position: absolute; bottom: -3px; left: 0; right: 0; height: 1px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; }
+    .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
+    .page-header { padding: 9rem 3rem 4rem; border-bottom: 1px solid rgba(26,26,46,0.08); display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: end; animation: fadeUp 0.8s ease both; }
+    .page-eyebrow { font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.8rem; }
+    .page-eyebrow::before { content: ''; width: 2rem; height: 1px; background: var(--accent); }
+    .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 300; line-height: 1.1; }
+    .page-title em { font-style: italic; color: var(--gold); }
+    .page-intro { font-size: 1rem; line-height: 1.8; color: var(--muted); align-self: center; }
+    .content { padding: 4rem 3rem; display: grid; grid-template-columns: 2fr 1fr; gap: 4rem; }
+    .bio-text { font-size: 1.05rem; line-height: 1.9; color: var(--ink); margin-bottom: 1.2rem; }
+    .bio-text.muted { color: var(--muted); }
+    h3.sub-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400; margin: 2.5rem 0 1rem; }
+    .timeline-item { display: grid; grid-template-columns: 110px 1fr; gap: 1.5rem; padding: 1.4rem 0; border-bottom: 1px solid rgba(26,26,46,0.06); opacity: 0; transform: translateX(-20px); animation: slideIn 0.5s ease forwards; }
+    .timeline-item:nth-child(1) { animation-delay: 0.1s; }
+    .timeline-item:nth-child(2) { animation-delay: 0.2s; }
+    .timeline-item:nth-child(3) { animation-delay: 0.3s; }
+    .timeline-item:nth-child(4) { animation-delay: 0.4s; }
+    .timeline-item:nth-child(5) { animation-delay: 0.5s; }
+    .timeline-item:nth-child(6) { animation-delay: 0.6s; }
+    .tl-year { font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; color: var(--muted); padding-top: 0.2rem; line-height: 1.4; }
+    .tl-content h4 { font-size: 1rem; font-weight: 500; margin-bottom: 0.2rem; }
+    .tl-content .tl-org { font-size: 0.88rem; color: var(--accent); font-weight: 500; margin-bottom: 0.3rem; }
+    .tl-content p { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+    .tl-tag { display: inline-block; font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 2px; margin-top: 0.4rem; letter-spacing: 0.05em; }
+    .tl-tag.work { background: rgba(26,82,118,0.12); color: #1a5276; }
+    .tl-tag.edu { background: rgba(26,26,46,0.08); color: var(--ink); }
+    .tl-tag.pub { background: rgba(34,197,94,0.1); color: #15803d; }
+    .tl-tag.staj { background: rgba(59,130,246,0.1); color: #1d4ed8; }
+    .pub-card { background: var(--ink); color: var(--paper); border-radius: 4px; padding: 1.8rem; margin: 2rem 0; position: relative; overflow: hidden; }
+    .pub-card::before { content: '"'; position: absolute; top: -0.5rem; right: 1rem; font-family: 'Cormorant Garamond', serif; font-size: 8rem; color: rgba(255,255,255,0.05); line-height: 1; }
+    .pub-card .pub-label { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.8rem; }
+    .pub-card h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 400; line-height: 1.4; margin-bottom: 0.6rem; }
+    .pub-card .pub-meta { font-size: 0.82rem; color: rgba(245,240,232,0.55); line-height: 1.5; }
+    .pub-card .pub-note { margin-top: 0.8rem; font-size: 0.8rem; color: var(--gold); font-style: italic; }
+    .info-card { background: var(--card-bg); border: 1px solid rgba(26,26,46,0.08); border-radius: 4px; padding: 1.8rem; margin-bottom: 1.5rem; }
+    .info-card h4 { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.2rem; }
+    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 0.55rem 0; border-bottom: 1px solid rgba(26,26,46,0.05); font-size: 0.86rem; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--muted); }
+    .info-value { font-weight: 500; }
+    .skill-item { margin-bottom: 1rem; }
+    .skill-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem; }
+    .skill-bar { height: 3px; background: rgba(26,26,46,0.08); border-radius: 2px; overflow: hidden; }
+    .skill-fill { height: 100%; background: var(--ink); border-radius: 2px; width: 0; animation: growBar 1s ease forwards 0.5s; }
+    .prog-tag { display: inline-block; background: rgba(26,26,46,0.07); color: var(--ink); font-size: 0.78rem; padding: 0.3rem 0.7rem; border-radius: 3px; margin: 0.2rem; }
+    .accent-line { width: 40px; height: 2px; background: var(--accent); margin-bottom: 1.5rem; }
+    footer { padding: 2rem 3rem; border-top: 1px solid rgba(26,26,46,0.08); display: flex; justify-content: space-between; align-items: center; }
+    footer p { font-size: 0.8rem; color: var(--muted); }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+    @keyframes growBar { to { width: var(--target); } }
+    @media (max-width: 768px) { .page-header, .content { grid-template-columns: 1fr; padding-left: 1.5rem; padding-right: 1.5rem; } .page-header { padding-top: 6rem; } nav { padding: 1rem 1.5rem; } .nav-links { gap: 1.2rem; } }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html" class="nav-logo">M.E.</a>
+    <ul class="nav-links">
+      <li><a href="hakkimda.html" class="active">Hakkımda</a></li>
+      <li><a href="hobilerim.html">Hobilerim</a></li>
+      <li><a href="iletisim.html">İletişim</a></li>
+    </ul>
+  </nav>
+
+  <header class="page-header">
+    <div>
+      <div class="page-eyebrow">Beni tanıyın</div>
+      <h1 class="page-title">Hakkımda</h1>
+    </div>
+    <p class="page-intro">
+      Hacettepe Üniversitesi'nde Geomatik Mühendisliği lisansını 3.00/4.00 ortalamayla tamamladım; şu anda Harita Mühendisliği yüksek lisansı yapıyor, T.C. Çevre, Şehircilik ve İklim Değişikliği Bakanlığı'nda CBS Uzman Yardımcısı olarak görev yapıyorum.
+    </p>
+  </header>
+
+  <div class="content">
+    <div class="bio-section">
+      <div class="accent-line"></div>
+      <p class="bio-text">LiDAR nokta bulutu analizi, yapay zeka destekli nesne algılama ve uzaktan algılama üzerine yoğunlaşıyorum. ACM SIGSPATIAL 2023'te sunulan makalem, 2013'ten bu yana kabul edilen ilk Türk çalışması olma özelliğini taşımaktadır.</p>
+      <p class="bio-text muted">İntelli Yazılım'da Yazılım Geliştirici olarak YOLOv8 tabanlı nesne algılama projeleri üzerinde çalıştım. TKGM ve İndis Mühendislik'teki stajlarımda GNSS ve fotogrametri alanlarında saha deneyimi kazandım.</p>
+
+      <div class="pub-card">
+        <div class="pub-label">📄 Konferans Makalesi</div>
+        <h4>Reproducible Extraction of Building Footprints from Airborne LiDAR Data: A Demo Paper</h4>
+        <div class="pub-meta">M. Erdem, B. Anbaroğlu &nbsp;·&nbsp; 31st ACM SIGSPATIAL · Hamburg, Almanya · Kasım 2023<br />DOI: 10.1145/3589132.3625574 · 473 İndirme · 1 Atıf</div>
+        <div class="pub-note">★ 2013 yılından beri ACM SIGSPATIAL'a kabul edilen ilk Türk makalesi</div>
+      </div>
+
+      <h3 class="sub-title">Eğitim &amp; Deneyim</h3>
+      <div class="timeline">
+        <div class="timeline-item">
+          <span class="tl-year">Haz 2025–<br>Devam</span>
+          <div class="tl-content">
+            <h4>CBS Uzman Yardımcısı</h4>
+            <div class="tl-org">T.C. Çevre, Şehircilik ve İklim Değişikliği Bakanlığı</div>
+            <span class="tl-tag work">Tam Zamanlı</span>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <span class="tl-year">Eki 2023–<br>Devam</span>
+          <div class="tl-content">
+            <h4>Harita Mühendisliği — Yüksek Lisans</h4>
+            <div class="tl-org">Hacettepe Üniversitesi</div>
+            <span class="tl-tag edu">Y. Lisans</span>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <span class="tl-year">Eyl 2024–<br>Haz 2025</span>
+          <div class="tl-content">
+            <h4>Yazılım Geliştirici</h4>
+            <div class="tl-org">İntelli Yazılım</div>
+            <p>YZ, Derin Öğrenme, YOLOv8, Obje Algılama, Uzaktan Algılama</p>
+            <span class="tl-tag work">Tam Zamanlı</span>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <span class="tl-year">Eki 2019–<br>Haz 2023</span>
+          <div class="tl-content">
+            <h4>Geomatik Mühendisliği — Lisans</h4>
+            <div class="tl-org">Hacettepe Üniversitesi — ORT: 3.00/4.00</div>
+            <span class="tl-tag edu">Lisans</span>
+            <span class="tl-tag pub" style="margin-left:0.3rem">ACM SIGSPATIAL Makalesi</span>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <span class="tl-year">Tem–Ağu 2022</span>
+          <div class="tl-content">
+            <h4>Stajyer</h4>
+            <div class="tl-org">İndis Mühendislik</div>
+            <p>GNSS · Fotogrametri · Geoteknik Mühendisliği</p>
+            <span class="tl-tag staj">Staj</span>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <span class="tl-year">Tem–Ağu 2021</span>
+          <div class="tl-content">
+            <h4>Stajyer</h4>
+            <div class="tl-org">Tapu ve Kadastro Genel Müdürlüğü</div>
+            <p>GNSS · Fotogrametri · Geoteknik Mühendisliği</p>
+            <span class="tl-tag staj">Staj</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="info-card">
+        <h4>Kişisel Bilgiler</h4>
+        <div class="info-row"><span class="info-label">Ad Soyad</span><span class="info-value">Mertcan Erdem</span></div>
+        <div class="info-row"><span class="info-label">Doğum</span><span class="info-value">16.05.2001</span></div>
+        <div class="info-row"><span class="info-label">Uyruk</span><span class="info-value">T.C.</span></div>
+        <div class="info-row"><span class="info-label">Medeni Durum</span><span class="info-value">Bekar</span></div>
+        <div class="info-row"><span class="info-label">Ehliyet</span><span class="info-value">B Manüel</span></div>
+        <div class="info-row"><span class="info-label">Askerlik</span><span class="info-value">Tecilli</span></div>
+        <div class="info-row"><span class="info-label">YDS</span><span class="info-value" style="color:var(--accent);font-weight:600">88.75</span></div>
+        <div class="info-row"><span class="info-label">Şehir</span><span class="info-value">Yenimahalle, Ankara</span></div>
+      </div>
+      <div class="info-card">
+        <h4>Teknik Beceriler</h4>
+        <div class="skill-item"><div class="skill-header"><span>LiDAR / Nokta Bulutu</span></div><div class="skill-bar"><div class="skill-fill" style="--target:92%"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>GIS / CBS</span></div><div class="skill-bar"><div class="skill-fill" style="--target:90%"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Python / Pandas</span></div><div class="skill-bar"><div class="skill-fill" style="--target:88%"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Görüntü İşleme / YOLOv8</span></div><div class="skill-bar"><div class="skill-fill" style="--target:85%"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>GNSS / Fotogrametri</span></div><div class="skill-bar"><div class="skill-fill" style="--target:80%"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Matlab</span></div><div class="skill-bar"><div class="skill-fill" style="--target:75%"></div></div></div>
+      </div>
+      <div class="info-card">
+        <h4>Programlar</h4>
+        <span class="prog-tag">QGIS</span><span class="prog-tag">CloudCompare</span><span class="prog-tag">Python</span><span class="prog-tag">Matlab</span><span class="prog-tag">YOLOv8</span><span class="prog-tag">Microstation</span><span class="prog-tag">Pandas</span>
+      </div>
+      <div class="info-card" style="background:var(--ink);color:var(--paper);border-color:transparent;">
+        <h4 style="color:rgba(245,240,232,0.5)">Üyelik</h4>
+        <p style="font-size:0.88rem;color:var(--paper)">🏛 Harita ve Kadastro Mühendisleri Odası</p>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    <p>© 2025 Mertcan Erdem — Hacettepe Üniversitesi</p>
+    <p>Web CBS Ödev-1</p>
+  </footer>
+</body>
+</html>

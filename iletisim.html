@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>İletişim — Mertcan Erdem</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <style>
+    :root {
+      --ink: #1a1a2e; --paper: #f5f0e8; --accent: #8b6914;
+      --gold: #b8860b; --muted: #7a7a8c; --card-bg: #fffdf7;
+      --ministry: #1a5276;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 3rem; background: rgba(245,240,232,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(26,26,46,0.08); }
+    .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; color: var(--ink); text-decoration: none; }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a { text-decoration: none; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); transition: color 0.3s; position: relative; }
+    .nav-links a.active { color: var(--ink); }
+    .nav-links a::after { content: ''; position: absolute; bottom: -3px; left: 0; right: 0; height: 1px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; }
+    .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
+
+    .page-header { padding: 9rem 3rem 4rem; border-bottom: 1px solid rgba(26,26,46,0.08); display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: end; animation: fadeUp 0.8s ease both; }
+    .page-eyebrow { font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.8rem; }
+    .page-eyebrow::before { content: ''; width: 2rem; height: 1px; background: var(--accent); }
+    .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.8rem, 5vw, 4.5rem); font-weight: 300; line-height: 1.1; }
+    .page-title em { font-style: italic; color: var(--gold); }
+    .page-intro { font-size: 1rem; color: var(--muted); line-height: 1.8; }
+
+    /* MAIN CONTENT */
+    .content { padding: 4rem 3rem; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
+
+    /* FORM */
+    .form-section h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400; margin-bottom: 0.4rem; }
+    .form-section p { font-size: 0.88rem; color: var(--muted); margin-bottom: 1.8rem; line-height: 1.6; }
+    .form-group { margin-bottom: 1.3rem; }
+    label { display: block; font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+    input, textarea { width: 100%; padding: 0.8rem 1rem; background: var(--card-bg); border: 1px solid rgba(26,26,46,0.12); border-radius: 3px; font-family: 'DM Sans', sans-serif; font-size: 0.92rem; color: var(--ink); transition: border-color 0.3s, box-shadow 0.3s; outline: none; }
+    input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(139,105,20,0.1); }
+    textarea { resize: vertical; min-height: 130px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .btn-send { display: inline-flex; align-items: center; gap: 0.6rem; background: var(--ink); color: var(--paper); border: none; padding: 0.85rem 2rem; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; border-radius: 2px; cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; }
+    .btn-send::after { content: ''; position: absolute; inset: 0; background: var(--ministry); transform: translateX(-100%); transition: transform 0.4s ease; }
+    .btn-send:hover::after { transform: translateX(0); }
+    .btn-send span { position: relative; z-index: 1; }
+    .btn-send:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+    .success-msg { display: none; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); border-radius: 4px; padding: 1rem; font-size: 0.88rem; color: #15803d; margin-top: 1rem; }
+
+    /* INFO + MAP side */
+    .info-side { }
+
+    .contact-card { display: flex; align-items: flex-start; gap: 1rem; padding: 1.2rem; background: var(--card-bg); border: 1px solid rgba(26,26,46,0.08); border-radius: 4px; margin-bottom: 0.8rem; transition: transform 0.3s; animation: fadeUp 0.5s ease both; }
+    .contact-card:hover { transform: translateX(4px); }
+    .contact-icon { width: 42px; height: 42px; background: var(--ink); color: var(--paper); border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .contact-card h4 { font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.25rem; }
+    .contact-card p { font-size: 0.88rem; color: var(--ink); line-height: 1.5; }
+    .contact-card a { color: var(--accent); text-decoration: none; }
+    .contact-card a:hover { text-decoration: underline; }
+
+    /* BAKANLĞIK MAP */
+    .ministry-map-section { padding: 0 3rem 5rem; }
+    .ministry-header { margin-bottom: 1.2rem; display: flex; align-items: center; gap: 1rem; }
+    .ministry-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--ministry); color: white; padding: 0.45rem 1rem; border-radius: 2px; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.05em; }
+    .ministry-map-title { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; margin-bottom: 0.4rem; }
+    .ministry-map-addr { font-size: 0.88rem; color: var(--muted); margin-bottom: 1.2rem; line-height: 1.5; }
+
+    .map-wrapper { border-radius: 6px; overflow: hidden; border: 1px solid rgba(26,26,46,0.1); box-shadow: 0 8px 40px rgba(0,0,0,0.06); }
+    #address-map { height: 360px; width: 100%; }
+
+    .typing-cursor { display: inline-block; width: 2px; height: 1em; background: var(--gold); margin-left: 4px; vertical-align: text-bottom; animation: blink 1s ease-in-out infinite; }
+
+    footer { padding: 2rem 3rem; border-top: 1px solid rgba(26,26,46,0.08); display: flex; justify-content: space-between; align-items: center; }
+    footer p { font-size: 0.8rem; color: var(--muted); }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    .leaflet-popup-content-wrapper { border-radius: 4px !important; font-family: 'DM Sans', sans-serif !important; }
+
+    @media (max-width: 768px) {
+      .page-header, .content { grid-template-columns: 1fr; padding-left: 1.5rem; padding-right: 1.5rem; }
+      .page-header { padding-top: 7rem; }
+      .ministry-map-section { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .form-row { grid-template-columns: 1fr; }
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { gap: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html" class="nav-logo">M.E.</a>
+    <ul class="nav-links">
+      <li><a href="hakkimda.html">Hakkımda</a></li>
+      <li><a href="hobilerim.html">Hobilerim</a></li>
+      <li><a href="iletisim.html" class="active">İletişim</a></li>
+    </ul>
+  </nav>
+
+  <header class="page-header">
+    <div>
+      <div class="page-eyebrow">Bana ulaşın</div>
+      <h1 class="page-title">
+        İletişim<span class="typing-cursor"></span>
+      </h1>
+    </div>
+    <p class="page-intro">
+      Proje iş birlikleri, akademik sorular veya diğer konular için mesaj gönderin. En geç 24 saat içinde dönüş yapacağım.
+    </p>
+  </header>
+
+  <div class="content">
+    <!-- FORM -->
+    <div class="form-section">
+      <h2>Mesaj Gönder</h2>
+      <p>Aşağıdaki formu doldurarak benimle iletişime geçebilirsiniz.</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="name">Ad Soyad</label>
+          <input type="text" id="name" placeholder="Adınız" />
+        </div>
+        <div class="form-group">
+          <label for="email">E-posta</label>
+          <input type="email" id="email" placeholder="mail@example.com" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="subject">Konu</label>
+        <input type="text" id="subject" placeholder="Konu" />
+      </div>
+      <div class="form-group">
+        <label for="message">Mesaj</label>
+        <textarea id="message" placeholder="Mesajınız..."></textarea>
+      </div>
+      <button class="btn-send" onclick="handleSubmit()"><span>📨 Gönder</span></button>
+      <div class="success-msg" id="successMsg">✅ Teşekkürler! En kısa sürede dönüş yapacağım.</div>
+    </div>
+
+    <!-- CONTACT INFO -->
+    <div class="info-side">
+      <div class="contact-card">
+        <div class="contact-icon">✉️</div>
+        <div>
+          <h4>E-posta</h4>
+          <p><a href="mailto:merterdemcan@hotmail.com">merterdemcan@hotmail.com</a></p>
+          <p><a href="mailto:mertcanerdem@hacettepe.edu.tr">mertcanerdem@hacettepe.edu.tr</a></p>
+        </div>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon">📞</div>
+        <div>
+          <h4>Telefon</h4>
+          <p>+90 545 223 23 51</p>
+        </div>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon">💼</div>
+        <div>
+          <h4>LinkedIn</h4>
+          <p><a href="https://www.linkedin.com/in/mertcan-erdem-54a500209/" target="_blank">linkedin.com/in/mertcan-erdem</a></p>
+        </div>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon">🏛️</div>
+        <div>
+          <h4>Görev Yeri</h4>
+          <p>CBS Uzman Yardımcısı<br />T.C. Çevre, Şehircilik ve İklim Değişikliği Bakanlığı</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MINISTRY MAP -->
+  <section class="ministry-map-section">
+    <div class="ministry-header">
+      <div class="ministry-badge">🏛️ Görev Yeri Konumu</div>
+    </div>
+    <h2 class="ministry-map-title">T.C. Çevre, Şehircilik ve İklim Değişikliği Bakanlığı</h2>
+    <p class="ministry-map-addr">
+      Mustafa Kemal Mahallesi, Eskişehir Devlet Yolu (Dumlupınar Bulvarı) No:278, 06510 Çankaya/Ankara
+    </p>
+
+    <div class="map-wrapper">
+      <div id="address-map"></div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 Mertcan Erdem — Hacettepe Üniversitesi</p>
+    <p>Web CBS Ödev-1</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script>
+    // Ministry coordinates
+    const MINISTRY_LAT = 39.91173569670921;
+    const MINISTRY_LNG = 32.75191428280923;
+
+    const map = L.map('address-map', {
+      center: [MINISTRY_LAT, MINISTRY_LNG],
+      zoom: 16,
+      scrollWheelZoom: false
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(map);
+
+    // Custom ministry icon
+    const ministryIcon = L.divIcon({
+      className: '',
+      html: `<svg width="36" height="46" viewBox="0 0 36 46" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 0C8.06 0 0 8.06 0 18c0 12.6 18 28 18 28S36 30.6 36 18C36 8.06 27.94 0 18 0z" fill="#1a5276"/>
+        <circle cx="18" cy="18" r="10" fill="white" opacity="0.95"/>
+        <text x="18" y="22" text-anchor="middle" font-size="11" fill="#1a5276" font-weight="bold">ÇŞB</text>
+      </svg>`,
+      iconSize: [36, 46], iconAnchor: [18, 46], popupAnchor: [0, -48]
+    });
+
+    L.marker([MINISTRY_LAT, MINISTRY_LNG], { icon: ministryIcon })
+      .bindPopup(`
+        <div style="font-family:'DM Sans',sans-serif;padding:0.2rem">
+          <div style="font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:#1a5276;font-weight:600;margin-bottom:0.4rem">GÖREV YERİ</div>
+          <strong style="font-size:1rem;font-family:'Cormorant Garamond',serif">T.C. Çevre, Şehircilik ve<br/>İklim Değişikliği Bakanlığı</strong>
+          <div style="margin-top:0.5rem;font-size:0.82rem;color:#555">CBS Uzman Yardımcısı<br/>Mertcan Erdem</div>
+          <div style="margin-top:0.4rem;font-size:0.78rem;color:#999">Mustafa Kemal Mah., Çankaya/Ankara</div>
+        </div>
+      `)
+      .addTo(map)
+      .openPopup();
+
+    // Form handler
+    function handleSubmit() {
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const message = document.getElementById('message').value.trim();
+      if (!name || !email || !message) { alert('Lütfen zorunlu alanları doldurunuz.'); return; }
+      const btn = document.querySelector('.btn-send');
+      btn.innerHTML = '<span>⏳ Gönderiliyor...</span>'; btn.disabled = true;
+      setTimeout(() => {
+        document.getElementById('successMsg').style.display = 'block';
+        btn.innerHTML = '<span>✅ Gönderildi</span>';
+        setTimeout(() => {
+          ['name','email','subject','message'].forEach(id => document.getElementById(id).value = '');
+          btn.innerHTML = '<span>📨 Gönder</span>'; btn.disabled = false;
+          document.getElementById('successMsg').style.display = 'none';
+        }, 3000);
+      }, 1200);
+    }
+  </script>
+</body>
+</html>

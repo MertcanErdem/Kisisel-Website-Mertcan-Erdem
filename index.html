@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mertcan Erdem — Kişisel Web Sayfası</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1a2e; --paper: #f5f0e8; --accent: #8b6914;
+      --gold: #b8860b; --muted: #7a7a8c; --card-bg: #fffdf7;
+      --ministry: #1a5276;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.2rem 3rem;
+      background: rgba(245,240,232,0.92); backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(26,26,46,0.08);
+    }
+    .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; color: var(--ink); text-decoration: none; }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a { text-decoration: none; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); transition: color 0.3s; position: relative; }
+    .nav-links a::after { content: ''; position: absolute; bottom: -3px; left: 0; right: 0; height: 1px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+
+    /* HERO */
+    .hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 0 3rem; gap: 4rem; padding-top: 5rem; }
+    .hero-text { animation: fadeUp 1s ease both; }
+
+    .hero-tag { font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.8rem; }
+    .hero-tag::before { content: ''; width: 2rem; height: 1px; background: var(--accent); }
+
+    .hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(3.5rem, 7vw, 6rem); line-height: 1.05; font-weight: 300; margin-bottom: 1.8rem; }
+    .hero-title em { font-style: italic; color: var(--gold); }
+
+    .hero-desc { font-size: 1rem; line-height: 1.7; color: var(--muted); max-width: 420px; margin-bottom: 2rem; }
+
+    /* Ministry badge */
+    .ministry-badge {
+      display: inline-flex; align-items: center; gap: 0.7rem;
+      background: var(--ministry); color: white;
+      padding: 0.7rem 1.2rem; border-radius: 3px;
+      font-size: 0.82rem; font-weight: 500; letter-spacing: 0.04em;
+      margin-bottom: 2rem;
+      animation: fadeUp 1s ease both 0.3s;
+    }
+    .ministry-badge .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #52be80; animation: pulse-dot 2s ease-in-out infinite; }
+
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.8rem 2rem; border-radius: 2px; font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500; text-decoration: none; transition: all 0.3s ease; cursor: pointer; border: none; }
+    .btn-primary { background: var(--ink); color: var(--paper); }
+    .btn-primary:hover { background: var(--ministry); transform: translateY(-2px); }
+    .btn-outline { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+    .btn-outline:hover { background: var(--ink); color: var(--paper); transform: translateY(-2px); }
+
+    /* VISUAL SIDE */
+    .hero-visual { position: relative; height: 520px; animation: fadeIn 1.2s ease both 0.3s; }
+    .hero-card { position: absolute; background: var(--card-bg); border: 1px solid rgba(26,26,46,0.1); border-radius: 4px; padding: 1.5rem; box-shadow: 0 8px 40px rgba(0,0,0,0.06); }
+
+    .card-main {
+      width: 260px; height: 340px; top: 50%; left: 50%;
+      transform: translate(-50%, -50%) rotate(-2deg);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      background: linear-gradient(160deg, var(--ministry) 0%, #0d2a3a 100%);
+      color: white; animation: float 6s ease-in-out infinite;
+    }
+    .card-main-inner h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 300; margin-bottom: 0.3rem; }
+    .card-main-inner p { font-size: 0.7rem; opacity: 0.55; letter-spacing: 0.1em; }
+    .card-main-badge { position: absolute; top: 1.5rem; right: 1.5rem; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+
+    .card-job { top: 6%; right: -3%; width: 200px; animation: float 6s ease-in-out infinite 0.8s; }
+    .card-job h4 { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .card-job .job-title { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--ministry); font-weight: 600; margin-bottom: 0.2rem; }
+    .card-job .job-org { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+
+    .card-pub { bottom: 16%; left: -3%; width: 195px; animation: float 6s ease-in-out infinite 1.5s; }
+    .card-pub h4 { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .card-pub p { font-size: 0.8rem; color: var(--ink); line-height: 1.4; }
+    .card-pub .pub-conf { font-size: 0.72rem; color: var(--accent); margin-top: 0.4rem; font-weight: 500; }
+
+    .card-skill { top: 7%; left: -4%; width: 175px; animation: float 6s ease-in-out infinite 2s; }
+    .skill-tag { display: inline-block; background: var(--ink); color: var(--paper); font-size: 0.72rem; padding: 0.3rem 0.7rem; border-radius: 30px; margin: 0.2rem; letter-spacing: 0.05em; }
+
+    .divider { width: 60px; height: 1px; background: var(--accent); margin: 1.8rem 0; }
+
+    /* SECTION */
+    .section { padding: 6rem 3rem; }
+    .section-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 3rem; }
+    .section-num { font-family: 'Cormorant Garamond', serif; font-size: 4rem; color: rgba(26,26,46,0.06); font-weight: 600; line-height: 1; }
+    .section-title-group h2 { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 300; }
+    .section-title-group p { font-size: 0.85rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .feature-card { background: var(--card-bg); border: 1px solid rgba(26,26,46,0.08); border-radius: 4px; padding: 2rem; transition: transform 0.3s, box-shadow 0.3s; text-decoration: none; color: inherit; display: block; }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.08); }
+    .feature-icon { font-size: 1.8rem; margin-bottom: 1rem; }
+    .feature-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 400; margin-bottom: 0.6rem; }
+    .feature-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+    .arrow { display: inline-block; margin-top: 1rem; font-size: 0.8rem; letter-spacing: 0.1em; color: var(--accent); }
+
+    footer { padding: 2rem 3rem; border-top: 1px solid rgba(26,26,46,0.08); display: flex; justify-content: space-between; align-items: center; }
+    footer p { font-size: 0.8rem; color: var(--muted); }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes float { 0%, 100% { transform: translate(-50%, -50%) rotate(-2deg) translateY(0); } 50% { transform: translate(-50%, -50%) rotate(-2deg) translateY(-12px); } }
+    @keyframes pulse-dot { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.6; } }
+
+    @media (max-width: 768px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; padding-top: 7rem; }
+      .hero-visual { display: none; }
+      .cards-grid { grid-template-columns: 1fr; }
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { gap: 1.2rem; }
+      .section { padding: 4rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html" class="nav-logo">M.E.</a>
+    <ul class="nav-links">
+      <li><a href="hakkimda.html">Hakkımda</a></li>
+      <li><a href="hobilerim.html">Hobilerim</a></li>
+      <li><a href="iletisim.html">İletişim</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-text">
+      <div class="hero-tag">Geomatik &amp; Harita Mühendisliği</div>
+      <h1 class="hero-title">
+        Merhaba, ben<br /><em>Mertcan Erdem</em>
+      </h1>
+      <p class="hero-desc">
+        Hacettepe Üniversitesi Harita Mühendisliği Yüksek Lisans öğrencisi. LiDAR nokta bulutu analizi, yapay zeka ve uzaktan algılama alanlarında araştırma yapıyorum.
+      </p>
+
+      <div class="ministry-badge">
+        <span class="badge-dot"></span>
+        CBS Uzman Yardımcısı — T.C. Çevre, Şehircilik ve İklim Değişikliği Bakanlığı
+      </div>
+
+      <div class="divider"></div>
+      <div class="hero-btns">
+        <a href="hakkimda.html" class="btn btn-primary">Hakkımda →</a>
+        <a href="iletisim.html" class="btn btn-outline">İletişim</a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-card card-skill">
+        <h4 style="font-size:0.7rem;color:var(--muted);margin-bottom:0.6rem;text-transform:uppercase;letter-spacing:0.1em">Uzmanlık</h4>
+        <span class="skill-tag">LiDAR</span>
+        <span class="skill-tag">GIS</span>
+        <span class="skill-tag">Python</span>
+        <span class="skill-tag">YOLOv8</span>
+      </div>
+
+      <div class="hero-card card-main">
+        <div class="card-main-badge">🗺</div>
+        <div class="card-main-inner">
+          <h3>Mertcan Erdem</h3>
+          <p>GEOMATİK &amp; HARİTA MÜHENDİSLİĞİ</p>
+        </div>
+      </div>
+
+      <div class="hero-card card-job">
+        <h4>Aktif Görev</h4>
+        <div class="job-title">CBS Uzman Yardımcısı</div>
+        <div class="job-org">T.C. Çevre, Şehircilik ve İklim Değişikliği Bakanlığı</div>
+      </div>
+
+      <div class="hero-card card-pub">
+        <h4>📄 Makale — 2023</h4>
+        <p>LiDAR'dan Bina Ayak İzi Çıkarımı (lasbuildseg)</p>
+        <div class="pub-conf">ACM SIGSPATIAL · Hamburg</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <div class="section-title-group">
+        <p>Keşfet</p>
+        <h2>Sayfalar</h2>
+      </div>
+    </div>
+    <div class="cards-grid">
+      <a href="hakkimda.html" class="feature-card">
+        <div class="feature-icon">👤</div>
+        <h3>Hakkımda</h3>
+        <p>Eğitim geçmişim, iş deneyimlerim, yayınlarım ve teknik becerilerim.</p>
+        <div class="arrow">Devamı →</div>
+      </a>
+      <a href="hobilerim.html" class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <h3>Hobilerim &amp; Ağ Haritası</h3>
+        <p>İlgi alanlarım ve coğrafi ilişki ağımı gösteren kişisel ağ haritası.</p>
+        <div class="arrow">Devamı →</div>
+      </a>
+      <a href="iletisim.html" class="feature-card">
+        <div class="feature-icon">✉️</div>
+        <h3>İletişim</h3>
+        <p>İletişim bilgilerim, konumum ve mesaj formu.</p>
+        <div class="arrow">Devamı →</div>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 Mertcan Erdem — Hacettepe Üniversitesi, Harita Mühendisliği</p>
+    <p style="font-size:0.78rem;color:var(--muted)">Web CBS Ödev-1</p>
+  </footer>
+</body>
+</html>

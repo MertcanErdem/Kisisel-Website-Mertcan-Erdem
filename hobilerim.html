@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hobilerim — Mertcan Erdem</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <style>
+    :root {
+      --ink: #1a1a2e; --paper: #f5f0e8; --accent: #8b6914;
+      --gold: #b8860b; --muted: #7a7a8c; --card-bg: #fffdf7;
+      --edu: #1d4ed8; --work: #15803d; --life: #b45309;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 3rem; background: rgba(245,240,232,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(26,26,46,0.08); }
+    .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; color: var(--ink); text-decoration: none; }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a { text-decoration: none; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); transition: color 0.3s; position: relative; }
+    .nav-links a.active { color: var(--ink); }
+    .nav-links a::after { content: ''; position: absolute; bottom: -3px; left: 0; right: 0; height: 1px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; }
+    .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
+
+    .page-header { padding: 9rem 3rem 4rem; border-bottom: 1px solid rgba(26,26,46,0.08); animation: fadeUp 0.8s ease both; }
+    .page-eyebrow { font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.8rem; }
+    .page-eyebrow::before { content: ''; width: 2rem; height: 1px; background: var(--accent); }
+    .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(3rem, 6vw, 5rem); font-weight: 300; line-height: 1.1; }
+    .page-title em { font-style: italic; color: var(--gold); }
+    .page-subtitle { font-size: 1rem; color: var(--muted); margin-top: 1rem; max-width: 560px; line-height: 1.7; }
+
+    /* HOBBIES */
+    .hobbies-section { padding: 3.5rem 3rem 2rem; }
+    .section-label { font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.5rem; }
+    .hobbies-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+    .hobby-card { background: var(--card-bg); border: 1px solid rgba(26,26,46,0.08); border-radius: 4px; padding: 2rem; transition: all 0.3s ease; position: relative; overflow: hidden; animation: fadeUp 0.5s ease both; }
+    .hobby-card:nth-child(1) { animation-delay: 0.1s; }
+    .hobby-card:nth-child(2) { animation-delay: 0.15s; }
+    .hobby-card:nth-child(3) { animation-delay: 0.2s; }
+    .hobby-card:nth-child(4) { animation-delay: 0.25s; }
+    .hobby-card::before { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; transform-origin: left; }
+    .hobby-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.08); }
+    .hobby-card:hover::before { transform: scaleX(1); }
+    .hobby-icon { font-size: 2.8rem; margin-bottom: 1.2rem; display: block; }
+    .hobby-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 400; margin-bottom: 0.7rem; }
+    .hobby-card p { font-size: 0.9rem; color: var(--muted); line-height: 1.65; }
+    .hobby-detail { margin-top: 1.2rem; padding-top: 1.2rem; border-top: 1px solid rgba(26,26,46,0.07); }
+    .hobby-detail span { display: inline-block; background: rgba(139,105,20,0.1); color: var(--accent); font-size: 0.78rem; padding: 0.25rem 0.65rem; border-radius: 3px; margin: 0.2rem; }
+
+    /* NETWORK MAP */
+    .map-section { padding: 2rem 3rem 5rem; }
+    .map-section-header { margin-bottom: 1.5rem; }
+    .map-section-title { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 300; margin-bottom: 0.4rem; }
+    .map-section-title em { font-style: italic; color: var(--gold); }
+    .map-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.65; max-width: 700px; margin-bottom: 1.3rem; }
+
+    .filter-bar { display: flex; gap: 0.7rem; margin-bottom: 1.2rem; flex-wrap: wrap; align-items: center; }
+    .filter-label { font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-right: 0.3rem; }
+    .filter-btn { padding: 0.5rem 1.4rem; border-radius: 2px; border: 1px solid rgba(26,26,46,0.15); font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500; letter-spacing: 0.06em; cursor: pointer; background: var(--card-bg); color: var(--ink); transition: all 0.25s; }
+    .filter-btn:hover { transform: translateY(-1px); }
+    .filter-btn.f-all  { background: var(--ink); color: white; border-color: var(--ink); }
+    .filter-btn.f-edu  { background: var(--edu); color: white; border-color: var(--edu); }
+    .filter-btn.f-work { background: var(--work); color: white; border-color: var(--work); }
+    .filter-btn.f-life { background: var(--life); color: white; border-color: var(--life); }
+
+    .map-wrapper { border-radius: 6px; overflow: hidden; border: 1px solid rgba(26,26,46,0.1); box-shadow: 0 8px 40px rgba(0,0,0,0.06); }
+    #network-map { height: 520px; width: 100%; }
+
+    .map-status-bar { background: var(--card-bg); border: 1px solid rgba(26,26,46,0.08); border-top: none; padding: 0.7rem 1.2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: var(--muted); border-radius: 0 0 6px 6px; }
+    #coord-display { font-weight: 500; color: var(--ink); }
+
+    .map-legend { display: flex; gap: 2rem; flex-wrap: wrap; margin-top: 1rem; }
+    .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: var(--muted); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+    footer { padding: 2rem 3rem; border-top: 1px solid rgba(26,26,46,0.08); display: flex; justify-content: space-between; align-items: center; }
+    footer p { font-size: 0.8rem; color: var(--muted); }
+
+    .leaflet-popup-content-wrapper { border-radius: 4px !important; font-family: 'DM Sans', sans-serif !important; font-size: 0.88rem !important; }
+    .popup-type { display: inline-block; font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 3px; margin-bottom: 0.4rem; font-weight: 500; letter-spacing: 0.06em; }
+    .popup-edu  { background: rgba(29,78,216,0.12); color: var(--edu); }
+    .popup-work { background: rgba(21,128,61,0.12); color: var(--work); }
+    .popup-life { background: rgba(180,83,9,0.12); color: var(--life); }
+    .popup-title { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 600; margin-bottom: 0.2rem; }
+    .popup-sub { font-size: 0.82rem; color: #555; line-height: 1.4; }
+    .popup-period { margin-top: 0.3rem; font-size: 0.78rem; color: #999; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 768px) {
+      .hobbies-grid { grid-template-columns: 1fr; }
+      .hobbies-section, .map-section { padding-left: 1.5rem; padding-right: 1.5rem; }
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { gap: 1.2rem; }
+      .page-header { padding: 7rem 1.5rem 3rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html" class="nav-logo">M.E.</a>
+    <ul class="nav-links">
+      <li><a href="hakkimda.html">Hakkımda</a></li>
+      <li><a href="hobilerim.html" class="active">Hobilerim</a></li>
+      <li><a href="iletisim.html">İletişim</a></li>
+    </ul>
+  </nav>
+
+  <header class="page-header">
+    <div class="page-eyebrow">İlgi alanlarım &amp; Coğrafi Ağım</div>
+    <h1 class="page-title">Hobilerim &amp; <em>Personal Network Map</em></h1>
+    <p class="page-subtitle">
+      Kişisel ilgi alanlarım ve eğitim, iş, yaşam alanlarımı bir arada gösteren coğrafi ilişki ağı haritam.
+    </p>
+  </header>
+
+  <!-- HOBBIES -->
+  <section class="hobbies-section">
+    <p class="section-label">Kişisel İlgi Alanları</p>
+    <div class="hobbies-grid">
+      <div class="hobby-card">
+        <span class="hobby-icon">🎮</span>
+        <h3>Video Oyunları</h3>
+        <p>Açık dünya RPG'lerden strateji oyunlarına geniş bir yelpazede oyun oynuyorum. Oyun dünyasındaki yapay zeka geliştirmeleri, mesleki ilgi alanımla da kesişiyor.</p>
+        <div class="hobby-detail"><span>RPG</span><span>Strateji</span><span>Açık Dünya</span></div>
+      </div>
+      <div class="hobby-card">
+        <span class="hobby-icon">⚽</span>
+        <h3>Futbol</h3>
+        <p>Hem oynamayı hem de izlemeyi seviyorum. Takım çalışması ve taktiksel düşünme biçimi mühendislik problemlerini çözerken de işime yarıyor.</p>
+        <div class="hobby-detail"><span>Halı Saha</span><span>Maç Analizi</span><span>Taktik</span></div>
+      </div>
+      <div class="hobby-card">
+        <span class="hobby-icon">🦸</span>
+        <h3>Çizgi Roman</h3>
+        <p>Görsel hikaye anlatımının en saf hali olarak çizgi romanı görüyorum. Karakter gelişimi ve görsel kompozisyon beni büyülüyor.</p>
+        <div class="hobby-detail"><span>Grafik Roman</span><span>Manga</span><span>İllüstrasyon</span></div>
+      </div>
+      <div class="hobby-card">
+        <span class="hobby-icon">📚</span>
+        <h3>Kitap Okumak</h3>
+        <p>Yapay zeka, veri bilimi ve geleceğin teknolojileri hakkında okuduklarım araştırma çalışmalarıma ilham veriyor.</p>
+        <div class="hobby-detail"><span>Bilim Kurgu</span><span>Teknoloji</span><span>Araştırma</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PERSONAL NETWORK MAP -->
+  <section class="map-section">
+    <div class="map-section-header">
+      <h2 class="map-section-title">Personal <em>Network Map</em></h2>
+      <p class="map-desc">
+        Eğitim, staj, iş ve yaşam alanlarımı kapsayan "Coğrafi İlişki Ağım". Filtreler ile tematik katmanları yönetin; haritaya tıklayarak koordinat okuyun.
+      </p>
+    </div>
+
+    <div class="filter-bar">
+      <span class="filter-label">Filtrele:</span>
+      <button class="filter-btn f-all"  id="btn-all"  onclick="filterLayer('all')">Tümü</button>
+      <button class="filter-btn" id="btn-edu"  onclick="filterLayer('edu')">🎓 Eğitim</button>
+      <button class="filter-btn" id="btn-work" onclick="filterLayer('work')">💼 İş &amp; Staj</button>
+      <button class="filter-btn" id="btn-life" onclick="filterLayer('life')">🏠 Yaşam</button>
+    </div>
+
+    <div class="map-wrapper">
+      <div id="network-map"></div>
+      <div class="map-status-bar">
+        <span id="coord-display">Haritaya tıklayarak koordinat okuyun</span>
+        <span id="zoom-display">Zoom: 12</span>
+      </div>
+    </div>
+
+    <div class="map-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--edu)"></div>Eğitim</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--work)"></div>İş &amp; Staj</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--life)"></div>Yaşam</div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 Mertcan Erdem — Hacettepe Üniversitesi</p>
+    <p>Web CBS Ödev-1</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script>
+    const map = L.map('network-map', { center: [39.91, 32.77], zoom: 12 });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(map);
+
+    map.on('zoomend', () => {
+      document.getElementById('zoom-display').textContent = 'Zoom: ' + map.getZoom();
+    });
+
+    map.on('click', (e) => {
+      document.getElementById('coord-display').textContent =
+        `Enlem: ${e.latlng.lat.toFixed(5)} | Boylam: ${e.latlng.lng.toFixed(5)}`;
+    });
+
+    function makeIcon(color, symbol) {
+      return L.divIcon({
+        className: '',
+        html: `<svg width="30" height="40" viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 0C6.72 0 0 6.72 0 15c0 10.5 15 25 15 25S30 25.5 30 15C30 6.72 23.28 0 15 0z" fill="${color}" opacity="0.9"/>
+          <circle cx="15" cy="15" r="8" fill="white" opacity="0.9"/>
+          <text x="15" y="19" text-anchor="middle" font-size="10" fill="${color}">${symbol}</text>
+        </svg>`,
+        iconSize: [30, 40], iconAnchor: [15, 40], popupAnchor: [0, -42]
+      });
+    }
+
+    const icons = {
+      edu:  makeIcon('#1d4ed8', '🎓'),
+      work: makeIcon('#15803d', '💼'),
+      life: makeIcon('#b45309', '🏠')
+    };
+
+    const nodes = [
+      {
+        cat: 'edu', lat: 39.8677, lng: 32.7338,
+        title: 'Hacettepe Üniversitesi — Beytepe',
+        sub: 'Geomatik Müh. Lisans (2019–2023) &amp; Harita Müh. Y.Lisans (2023–devam)',
+        period: 'Ekim 2019 – Devam Ediyor'
+      },
+      {
+        cat: 'work', lat: 39.91173569670921, lng: 32.75191428280923,
+        title: 'T.C. Çevre, Şehircilik ve İklim Değişikliği Bakanlığı',
+        sub: 'CBS Uzman Yardımcısı',
+        period: 'Haziran 2025 – Devam Ediyor'
+      },
+      {
+        cat: 'work', lat: 39.9085, lng: 32.7531,
+        title: 'İntelli Yazılım',
+        sub: 'Yazılım Geliştirici — YZ, Derin Öğrenme, YOLOv8',
+        period: 'Eylül 2024 – Haziran 2025'
+      },
+      {
+        cat: 'work', lat: 39.9689, lng: 32.7968,
+        title: 'Yenimahalle Tapu Ve Kadastro Müdürlüğü',
+        sub: 'Stajyer — GNSS, Fotogrametri, Geoteknik',
+        period: 'Temmuz – Ağustos 2021'
+      },
+      {
+        cat: 'work', lat: 39.8893, lng: 32.8272,
+        title: 'İndis Mühendislik',
+        sub: 'Stajyer — GNSS, Fotogrametri',
+        period: 'Temmuz – Ağustos 2022'
+      },
+      {
+        cat: 'life', lat: 39.9750, lng: 32.7800,
+        title: 'Yenimahalle',
+        sub: 'Yaşam alanı',
+        period: 'Ankara, Türkiye'
+      }
+    ];
+
+    const layerGroups = { edu: L.layerGroup(), work: L.layerGroup(), life: L.layerGroup() };
+
+    nodes.forEach(n => {
+      const typeLabel = { edu: 'EĞİTİM', work: 'İŞ / STAJ', life: 'YAŞAM' }[n.cat];
+      L.marker([n.lat, n.lng], { icon: icons[n.cat] })
+        .bindPopup(`
+          <span class="popup-type popup-${n.cat}">${typeLabel}</span>
+          <div class="popup-title">${n.title}</div>
+          <div class="popup-sub">${n.sub}</div>
+          <div class="popup-period">${n.period}</div>
+        `, { maxWidth: 280 })
+        .addTo(layerGroups[n.cat]);
+    });
+
+    // Connection lines
+    const lines = [
+      L.polyline([[39.8677, 32.7338], [39.9750, 32.7800]], { color: '#1d4ed8', weight: 2, dashArray: '6 5', opacity: 0.35 }),
+      L.polyline([[39.91173569670921, 32.75191428280923], [39.9750, 32.7800]], { color: '#15803d', weight: 2, dashArray: '6 5', opacity: 0.35 }),
+      L.polyline([[39.8677, 32.7338], [39.91173569670921, 32.75191428280923]], { color: '#888', weight: 1.5, dashArray: '4 6', opacity: 0.25 }),
+    ];
+
+    Object.values(layerGroups).forEach(lg => lg.addTo(map));
+    lines.forEach(l => l.addTo(map));
+
+    const btnClasses = { all: 'f-all', edu: 'f-edu', work: 'f-work', life: 'f-life' };
+
+    function filterLayer(type) {
+      ['all','edu','work','life'].forEach(t => {
+        document.getElementById('btn-' + t).className = 'filter-btn';
+      });
+      document.getElementById('btn-' + type).className = `filter-btn ${btnClasses[type]}`;
+
+      if (type === 'all') {
+        Object.values(layerGroups).forEach(lg => { if (!map.hasLayer(lg)) map.addLayer(lg); });
+        lines.forEach(l => { if (!map.hasLayer(l)) map.addLayer(l); });
+      } else {
+        Object.entries(layerGroups).forEach(([k, lg]) => {
+          k === type ? (!map.hasLayer(lg) && map.addLayer(lg)) : (map.hasLayer(lg) && map.removeLayer(lg));
+        });
+        lines.forEach(l => { if (map.hasLayer(l)) map.removeLayer(l); });
+      }
+    }
+  </script>
+</body>
+</html>
