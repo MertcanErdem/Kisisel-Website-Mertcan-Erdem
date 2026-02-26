@@ -339,7 +339,7 @@
       }
     }
 
-    // --- TOPLU TAŞIMA SÜRELERİ (YENİ EKLENEN KISIM) ---
+    // --- TOPLU TAŞIMA SÜRELERİ ---
     function toggleTransit() {
       if (isJourneyPlaying) return; // Animasyon oynarken buton devredışı
 
@@ -351,13 +351,17 @@
         btn.innerHTML = "🚇 Ulaşım Süreleri";
         transitLayer.clearLayers();
         filterLayer('all'); // Eski görünümü geri yükle
+
+        // Haritayı orijinal konumuna geri döndür (Merkez ve Zoom)
+        map.flyTo([39.91, 32.77], 12, { duration: 1.2 });
       } else {
         // Açma İşlemi
+        filterLayer('all'); // Önce tüm harita objelerini yükle, SONRA transit modunu aç
+        
         isTransitMode = true;
         btn.innerHTML = "❌ Ulaşımı Gizle";
         
-        // Önce tüm haritayı gösterip, klasik ince çizgileri gizle
-        filterLayer('all');
+        // Klasik ince çizgileri gizle
         lines.forEach(l => { if (map.hasLayer(l)) map.removeLayer(l); });
 
         // Yenimahalle (Yaşam Alanı) Koordinatları
@@ -365,11 +369,11 @@
         
         // Yaşam alanından diğer yerlere giden toplu taşıma verisi
         const transitRoutes = [
-          { coords: [39.8677, 32.7338], info: "🚇 Otobüs + Metro + Ring (~1 saat 45 dk)", color: "#e11d48" }, // Hacettepe
-          { coords: [39.911735, 32.751914], info: "🚇 Otobüs+ Metro + Yürüme  (~1 saat 20 dk)", color: "#2563eb" }, // Bakanlık
-          { coords: [39.9085, 32.7531], info: "🚇 Otobüs+ Metro + Yürüme  (~1 saat 20 dk)", color: "#2563eb" }, // İntelli
-          { coords: [39.9689, 32.7968], info: "🚐 Dolmuş / Yürüme (~20 dk)", color: "#16a34a" }, // TKGM
-          { coords: [39.8893, 32.8272], info: "🚌 Otobüs + Metro + Otobüs (~45 dk)", color: "#d97706" } // İndis
+          { coords: [39.8677, 32.7338], info: "🚇 Otobüs + Metro + Ring (~1 saat 45 dk)", color: "#e11d48" }, 
+          { coords: [39.911735, 32.751914], info: "🚇 Otobüs+ Metro + Yürüme  (~1 saat 20 dk)", color: "#2563eb" }, 
+          { coords: [39.9085, 32.7531], info: "🚇 Otobüs+ Metro + Yürüme  (~1 saat 20 dk)", color: "#2563eb" }, 
+          { coords: [39.9689, 32.7968], info: "🚐 Dolmuş / Yürüme (~20 dk)", color: "#16a34a" }, 
+          { coords: [39.8893, 32.8272], info: "🚌 Otobüs + Metro + Otobüs (~45 dk)", color: "#d97706" } 
         ];
 
         // Rotaları çizdir
